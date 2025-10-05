@@ -1,5 +1,9 @@
 package by.savik.notification.controller;
 
+import by.savik.notification.dto.FarmResponse;
+import by.savik.notification.dto.FruitResponse;
+import by.savik.notification.service.NotificationManagerService;
+import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -64,7 +68,7 @@ public class NotificationController {
     public ResponseEntity<Map<String, String>> sendAllNotification(
             @RequestBody Map<String, String> request){
         String message = request.get("message");
-        notificationManagerService.sendAllNotification(message);
+        notificationManagerService.sendNotificationToAll(message);
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
@@ -79,7 +83,7 @@ public class NotificationController {
             @PathVariable String serviceType,
             @RequestBody Map<String, String> request){
         String message = request.get("message");
-        notificationManagerService.sendNotificationByType(message);
+        notificationManagerService.sendNotificationByType(serviceType, message);
 
         Map<String, String> response = new HashMap<>();
         response.put("status", "success");
@@ -87,5 +91,57 @@ public class NotificationController {
         response.put("message", "Notification send to " + serviceType);
 
         return ResponseEntity.ok(response);
+    }
+
+    @PostMapping("/create-farm")
+    public ResponseEntity<Map<String, Object>> createFarmAndNotify(
+            @RequestBody Map<String, String> request){
+        String name = request.get("name");
+        String location = request.get("location");
+        String message = request.get("message");
+
+        if (name == null || location == null) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "farmName and location is required");
+            return ResponseEntity.badRequest().body(errorResponse);
+        }
+        try {
+            FarmResponse farmResponse = notificationManagerService.createFarm(name, location, message);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Notification send to all services");
+            response.put("farm", farmResponse);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception error){
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "Failed to create farm or send notification: " + error.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/randomFruit")
+    public ResponseEntity<Map<String, Object>> createRandomFruitAndNotify(
+            @Parameter(description = "Farm ID to assign the random fruit to", required = true)
+            @RequestParam Long farmId,
+            @RequestBody Map<String, String> request){
+        String message = request.get("message");
+        try {
+            FruitResponse fruitResponse = notificationManagerService.createRandomFruit(farmId, message);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Notification send to all services");
+            response.put("fruit", fruitResponse);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception error) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "Failed to create fruit or send notification:" + error.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
     }
 }
