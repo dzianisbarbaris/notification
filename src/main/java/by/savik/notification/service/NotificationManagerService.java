@@ -4,10 +4,12 @@ import by.savik.notification.client.FarmApiClient;
 import by.savik.notification.dto.FarmRequest;
 import by.savik.notification.dto.FarmResponse;
 import by.savik.notification.dto.FruitResponse;
+import by.savik.notification.dto.VegetableResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -91,6 +93,60 @@ public class NotificationManagerService {
         } catch (Exception e) {
             System.err.println("Failed to create random fruit: " + e.getMessage());
             sendNotificationToAll("Failed to create random fruit" + e.getMessage());
+            throw e;
+        }
+    }
+
+    public List<FruitResponse> createRandomCountFruit(Long farmId, String message){
+        try{
+            List<FruitResponse> fruitResponse = farmApiClient.createRandomCountFruit(farmId);
+
+            fruitResponse.forEach(f -> System.out.println("Fruit created successfully: "
+                    + f.getName() + " color: " + f.getColor()
+                    + "weight: " + f.getWeight()));
+
+           /* String fullMessage = message + " - Random Vegetable: "
+                    + vegetableResponse.getName() + " (ID: " + vegetableResponse.getId() + ")";*/
+            sendNotificationToAll(message);
+            return fruitResponse;
+        } catch (Exception e) {
+            System.err.println("Failed to create random fruit: " + e.getMessage());
+            sendNotificationToAll("Failed to create random fruit" + e.getMessage());
+            throw e;
+        }
+    }
+
+    public VegetableResponse createRandomVegetable(Long farmId, String message){
+        try{
+            VegetableResponse vegetableResponse = farmApiClient.createRandomVegetable(farmId);
+
+            System.out.println("Vegetable created successfully: " + vegetableResponse.getName() + " color: " + vegetableResponse.getColor()
+                    + "weight: " + vegetableResponse.getWeight());
+            String fullMessage = message + " - Random Vegetable: " + vegetableResponse.getName() + " (ID: " + vegetableResponse.getId() + ")";
+            sendNotificationToAll(fullMessage);
+            return vegetableResponse;
+        } catch (Exception e) {
+            System.err.println("Failed to create random vegetable: " + e.getMessage());
+            sendNotificationToAll("Failed to create random vegetable" + e.getMessage());
+            throw e;
+        }
+    }
+
+    public List<VegetableResponse> createRandomCountVegetable(Long farmId, String message){
+        try{
+            List<VegetableResponse> vegetableResponse = farmApiClient.createRandomCountVegetable(farmId);
+
+            vegetableResponse.forEach(v -> System.out.println("Vegetable created successfully: "
+                    + v.getName() + " color: " + v.getColor()
+                    + "weight: " + v.getWeight()));
+
+           /* String fullMessage = message + " - Random Vegetable: "
+                    + vegetableResponse.getName() + " (ID: " + vegetableResponse.getId() + ")";*/
+            sendNotificationToAll(message);
+            return vegetableResponse;
+        } catch (Exception e) {
+            System.err.println("Failed to create random vegetable: " + e.getMessage());
+            sendNotificationToAll("Failed to create random vegetable" + e.getMessage());
             throw e;
         }
     }

@@ -2,6 +2,7 @@ package by.savik.notification.controller;
 
 import by.savik.notification.dto.FarmResponse;
 import by.savik.notification.dto.FruitResponse;
+import by.savik.notification.dto.VegetableResponse;
 import by.savik.notification.service.NotificationManagerService;
 import io.swagger.v3.oas.annotations.Parameter;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -141,6 +144,72 @@ public class NotificationController {
             Map<String, Object> errorResponse = new HashMap<>();
             errorResponse.put("status", "error");
             errorResponse.put("message", "Failed to create fruit or send notification:" + error.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/randomCountFruit")
+    public ResponseEntity<Map<String, Object>> createRandomCountFruitAndNotify(
+            @Parameter(description = "Farm ID to assign the random fruits to", required = true)
+            @RequestParam Long farmId,
+            @RequestBody Map<String, String> request){
+        String message = request.get("message");
+        try {
+            List<FruitResponse> fruitResponse = notificationManagerService.createRandomCountFruit(farmId, message);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Notification send to all services");
+            response.put("fruits", fruitResponse);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception error) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "Failed to create fruits or send notification:" + error.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/randomVegetable")
+    public ResponseEntity<Map<String, Object>> createRandomVegetableAndNotify(
+            @Parameter(description = "Farm ID to assign the random vegetable to", required = true)
+            @RequestParam Long farmId,
+            @RequestBody Map<String, String> request){
+        String message = request.get("message");
+        try {
+            VegetableResponse vegetableResponse = notificationManagerService.createRandomVegetable(farmId, message);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Notification send to all services");
+            response.put("vegetable", vegetableResponse);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception error) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "Failed to create vegetable or send notification:" + error.getMessage());
+            return ResponseEntity.status(500).body(errorResponse);
+        }
+    }
+
+    @PostMapping("/randomCountVegetable")
+    public ResponseEntity<Map<String, Object>> createRandomCountVegetableAndNotify(
+            @Parameter(description = "Farm ID to assign the random vegetables to", required = true)
+            @RequestParam Long farmId,
+            @RequestBody Map<String, String> request){
+        String message = request.get("message");
+        try {
+            List<VegetableResponse> vegetableResponse = notificationManagerService.createRandomCountVegetable(farmId, message);
+            Map<String, Object> response = new HashMap<>();
+            response.put("status", "success");
+            response.put("message", "Notification send to all services");
+            response.put("vegetables", vegetableResponse);
+
+            return ResponseEntity.ok(response);
+        } catch (Exception error) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("status", "error");
+            errorResponse.put("message", "Failed to create vegetable or send notification:" + error.getMessage());
             return ResponseEntity.status(500).body(errorResponse);
         }
     }
